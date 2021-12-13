@@ -1,117 +1,118 @@
-function $(elem){
-    return document.querySelectorAll(elem);
+// helper functions
+function screenlog(msg){
+    let screenlogElem = document.querySelector('.screenlog');
+    screenlogElem.innerText = msg;
 }
 
-const title = $('h1')[0];
-const container = $('.container')[0];
-const peekNav = $('.peek-nav')[0];
-const peekNavItems = $('.peek-nav-item');
-const peekNavSelector = $('.peek-nav-item-selector')[0];
 
-let touching = false;
-let delta = [0, 0];
-const threshold = 20;
-let nextTitle = 'Peek at the nav';
+let mainElem = document.querySelector('main');
+let peekNavSelector = document.querySelector('.peek-nav-selector');
 
-function handleMouseDown(e){
-    touching = true;
-    delta[0] = e.pageX;
-    delta[1] = e.pageY;
+let isMouseDown = false;
+let startPos = {
+    x: 0,
+    y: 0
+};
+let delta = {
+    x: 0,
+    y: 0
+};
+let peekNavItems = document.querySelectorAll('.peek-nav-item');
+let totalItems = peekNavItems.length;
+let activeItem = 0;
+let nextItem = 0;
+
+console.log(`totalItems: ${totalItems}`);
+
+const handleMouseDown = (e) => {
+    isMouseDown = true;
+    startPos.x = e.clientX;
+    startPos.y = e.clientY;
 }
 
-function handleMouseUp(e){
-    touching = false;
-    delta[0] = 0;
-    delta[1] = 0;
-
-    gsap.to(container, {
-        x: 0,
-        duration: 0.4,
-        ease: "expo.out",
-        clearProps: "all",
-        delay: 0.1
-    });
+const handleMouseUp = (e) => {
+    isMouseDown = false;
+    resetMainElem();
+    activeItem = activeItem + nextItem;
 
     gsap.to(peekNavSelector, {
-        scale: 10,
+        scale: 2,
         opacity: 0,
-        duration: 1,
-        ease: "power4.out",
-        clearProps: "all"
-    });
-
-    gsap.fromTo(document.querySelector('[data-selected-item]'), {
-        scale: 0.75,
-    },{
-        scale: 1,
-        duration: 0.6,
-        ease: "bounce.out",
-        clearProps: "all"
-    });
-
-    title.innerText = nextTitle;
-    gsap.fromTo(title, {
-        opacity: 0,
-        y: "10px"
-    }, {
-        opacity: 1,
-        y: 0,
-        duration: 0.4,
-        delay: 0.1,
-        ease: "power4.out"
-    });
-}
-
-function handleMouseMove(e){
-    e.preventDefault();
-    if(touching){
-        var x = e.pageX - delta[0];
-        var y = e.pageY - delta[1];
-
-        if(x > 0 && x <= 100){
-            if(x > threshold){
-                move(container, x, 0);
-            }
-        };
-
-        var index = Math.ceil(Math.abs(y/50));
-        try{
-            document.querySelector('[data-selected-item]').removeAttribute("data-selected-item");
+        duration: 0.35,
+        ease: 'expo.out',
+        clearProps: 'scale',
+        onComplete: function(){
+            peekNavSelector.style.opacity = 1;
         }
-        catch{}
-        peekNavItems[index].dataset.selectedItem = "true";
-        nextTitle = peekNavItems[index].dataset.title;
-        
+    });
 
-        if(y >= 0 && y < (peekNavItems.length - 1) * 50){
-            if(x > 75){
-                // move(peekNavSelector, 0, y);
+    screenlog(getCurrentTitle());
+}
 
-                gsap.fromTo(peekNavSelector, {
-                    scaleX: 0.85,
-                    scaleY: 1.25
-                },{
-                    y: `${50 * Math.ceil(Math.abs(y/50))}px`,
-                    scale: 1.5,
-                    duration: 0.6,
-                    ease: "power4.out"
-                });
-            }
-            
-        };
+function getCurrentTitle(){
+    return peekNavItems[activeItem].getAttribute('data-title');
+}
+screenlog(getCurrentTitle());
+
+
+const handleMouseMove = (e) => {
+    e.preventDefault();
+    
+    if(!isMouseDown) return;
+
+    let x = e.clientX;
+    let y = e.clientY;
+
+    delta.x = x - startPos.x;
+    delta.y = y - startPos.y;
+    
+    if(delta.x > 10){
+        animateMainElem(delta.x);
+
+        let index = Math.floor(delta.y / 100);
+        nextItem = index;
+
+        let nextIndex = activeItem + nextItem;
+
+        console.log(`nextIndex: ${nextIndex}`);
+
+        if(nextIndex >= 0 && nextIndex < totalItems){
+            animatePeekNavSelectorTo((activeItem + nextItem) * 100);
+        }
+    
     }
+    // screenlog(`x: ${delta.x} \n y: ${delta.y}`);
 }
 
-function move(element, x, y) {
-    element.style.transform = `translate(${x}px, ${y}px)`;
+
+function animateMainElem(distance){
+    mainElem.style.transform = 'translateX(' + distance + 'px)';
 }
 
-document.body.addEventListener('mousedown', (e)=> {handleMouseDown(e)});
+function resetMainElem(){
+    gsap.to(mainElem, {
+        x: 0,
+        duration: 0.25,
+        ease: 'expo.out',
+        clearProps: 'all'
+    });
+
+    delta.x = 0;
+    // screenlog(`x: ${delta.x} \n y: ${delta.y}`);
+}
+
+function animatePeekNavSelectorTo(index){
+    gsap.to(peekNavSelector, {
+        y: index,
+        duration: 0.3,
+        ease: 'expo.out'
+    });
+}
+
 document.body.addEventListener('mouseup', (e)=> {handleMouseUp(e)});
+document.body.addEventListener('mousedown', (e)=> {handleMouseDown(e)});
 document.body.addEventListener('mouseleave', (e)=> {handleMouseUp(e)});
 document.body.addEventListener('mousemove',  (e)=> {handleMouseMove(e)});
 document.body.addEventListener('touchstart', (e)=> {handleMouseDown(e)});
 document.body.addEventListener('touchend', (e)=> {handleMouseUp(e)});
 document.body.addEventListener('touchmove',  (e)=> {handleMouseMove(e)});
-
-

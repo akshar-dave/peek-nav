@@ -1,68 +1,73 @@
-:root{
-    --nav-item-size: 50px;
+body{
+    margin: 0;
+    overflow: hidden;
 }
 *{
     box-sizing: border-box;
-}
-body{
-    background-color: #000;
     margin: 0;
-    font-family: 'Inter', sans-serif;
-    overflow: hidden;
+    padding: 0;
 }
-.container{
+main{
+    position: relative;
+    z-index: 1;
+    font-family: Inter, sans-serif;
+    font-size: 6vmin;
     background-color: #fff;
-    padding: 80px 30px;
+    min-height: 100vh;
+    min-width: 100%;
     will-change: transform;
 }
-h1{
-    margin: 0;
-    font-weight: 600;
+p{
+    user-select: none;
 }
-.description{
-    margin-bottom: 30px;
+.screenlog{
+    z-index: 1;
+    font-size: 6vmin;
+    padding: 2vmin;
+    font-family: 'Inter', sans-serif;
+    font-feature-settings: "ss01";
+    border-radius: 2vmin;
+    user-select: none;
 }
-.image-wrapper{
-    height: 300px;
-    width: 100%;
-    background-color: #eee;
-}
+
+
 .peek-nav{
     position: fixed;
+    height: 100vh;
+    width: 100%;
     left: 0;
+    top: 0;
     z-index: -1;
-    width: 100px;
-    color: #fff;
+    background-color: #563d7c;
 }
-.peek-nav-itemlist{
+.peek-nav-items{
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
 }
 .peek-nav-item{
-    text-align: center;
-    background-color: rgba(11,11,11,0.5);
-    border-radius: 500px;
-    width: var(--nav-item-size);
-    height: var(--nav-item-size);
+    margin: 0;
+    padding: 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    will-change: transform;
+    width: 100px;
+    height: 100px;
 }
-.peek-nav-item-selector{
-    border-radius: 500px;
-    mix-blend-mode: overlay;
-    background-color: #63f;
-    width: var(--nav-item-size);
-    height: var(--nav-item-size);
+.peek-nav-item svg{
+    height: 30px;
+    width: 30px;
+}
+.peek-nav-selector{
+    height: 100px;
+    width: 100px;
     position: absolute;
-    left: calc(var(--nav-item-size) / 2);
     top: 0;
-    will-change: transform;
+    left: 0;
+    background-color: #b58cf3;
+    border-radius: 500px;
+    z-index: -1;
 }
